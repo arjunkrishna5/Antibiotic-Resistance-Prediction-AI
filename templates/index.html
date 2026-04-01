@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codecure - Clinical Antibiotic AI</title>
+    <!-- Link to the clean CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Codecure AI</h1>
+            <p class="subtitle">Predicting Antibiotic Multiresistance from Patient Profiles</p>
+            <p class="explanation-text">This tool predicts antibiotic resistance risk based on patient clinical data.
+            </p>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Column: Input Form -->
+            <div class="card form-card">
+                <h2>Patient Clinical Details</h2>
+                <form action="/predict" method="POST">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" name="age" placeholder="Age in years"
+                                value="{{ form_data.get('age', '') }}" min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select name="gender">
+                                <option value="1" {% if form_data.get('gender')=='1' %}selected{% endif %}>Male</option>
+                                <option value="0" {% if form_data.get('gender')=='0' %}selected{% endif %}>Female
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Diabetes?</label>
+                            <select name="diabetes">
+                                <option value="1" {% if form_data.get('diabetes')=='1' %}selected{% endif %}>Yes
+                                </option>
+                                <option value="0" {% if form_data.get('diabetes')=='0' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Hypertension?</label>
+                            <select name="hypertension">
+                                <option value="1" {% if form_data.get('hypertension')=='1' %}selected{% endif %}>Yes
+                                </option>
+                                <option value="0" {% if form_data.get('hypertension')=='0' %}selected{% endif %}>No
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hospitalization Before?</label>
+                        <select name="hospital_before">
+                            <option value="1" {% if form_data.get('hospital_before')=='1' %}selected{% endif %}>Yes
+                            </option>
+                            <option value="0" {% if form_data.get('hospital_before')=='0' %}selected{% endif %}>No
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of past infections (last 1 year)</label>
+                        <input type="number" name="infection_freq" step="1"
+                            value="{{ form_data.get('infection_freq', '0') }}" min="0" max="20" required>
+                    </div>
+
+                    <button class="btn-predict" type="submit">Predict Resistance Status</button>
+
+                    <div class="disclaimer">
+                        <strong>Disclaimer:</strong> This AI tool is for assistance only and should not replace clinical
+                        judgment.
+                    </div>
+                </form>
+
+                <!-- Flask Error Display -->
+                {% if error %}
+                <div class="alert error">
+                    <p><strong>System Error:</strong> {{ error }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column: Results Screen -->
+            {% if prediction %}
+            <div class="card result-card glossy">
+                <h2>Prediction Results</h2>
+
+                <div class="recommendation">
+                    <h3>💡 Recommended Prescriptions</h3>
+                    {% if recommended %}
+                    <p class="med-list">{{ recommended | join(", ") }}</p>
+                    {% else %}
+                    <p class="med-list danger">⚠️ No widely susceptible antibiotics predicted.</p>
+                    {% endif %}
+                </div>
+
+                <div class="drug-grid">
+                    {% for item in prediction %}
+                    <div class="drug-item status-{{ item.code }}">
+                        <span class="drug-name">{{ item.drug }}</span>
+                        <span class="drug-status">{{ item.status }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Placeholder when resting -->
+            <div class="card placeholder-card">
+                <div class="placeholder-content">
+                    <h2 class="placeholder-icon">📋</h2>
+                    <p>Enter patient data to generate an antibiotic susceptibility profile.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>
