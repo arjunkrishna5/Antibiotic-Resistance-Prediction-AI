@@ -75,6 +75,55 @@ Average Performance:
 
 This ensures the model is properly validated before deployment.
 
+## 🔗 Antibiotic Resistance Network Visualization
+
+This project includes a network graph that visualizes relationships between different antibiotics based on resistance patterns observed in the dataset.
+
+### 📌 What this shows
+
+* Each **node** represents an antibiotic.
+* Each **edge (connection)** represents a correlation between two antibiotics.
+* A connection indicates that the resistance or susceptibility patterns of those antibiotics are related.
+
+### ⚙️ How it works
+
+* The cleaned dataset is used to compute correlations between antibiotic resistance features.
+* A threshold is applied to filter meaningful relationships.
+* A graph is generated using `NetworkX` and visualized using `Matplotlib`.
+
+### 📊 Output
+
+The generated network graph is saved as:
+
+```
+static/network_graph.png
+```
+
+### 🧠 Interpretation
+
+* Strongly connected antibiotics may share similar resistance behavior.
+* This helps in understanding patterns in multi-drug resistance.
+* It can assist in identifying clusters of antibiotics with similar effectiveness.
+
+### ⚠️ Limitations
+
+* The graph is based on statistical correlation, not biological causation.
+* Threshold selection affects graph density.
+* Does not represent actual genetic pathways, only data-driven relationships.
+
+### 🚀 Usage
+
+To generate the network graph:
+
+```bash
+python src/network.py
+```
+
+---
+
+This visualization complements the prediction model by providing insights into antibiotic resistance relationships.
+
+
 
 ## Future Improvements 🔮
 1.  Connect to an SQL database to pull real-time, live hospital datapoints instead of static CSVs.
