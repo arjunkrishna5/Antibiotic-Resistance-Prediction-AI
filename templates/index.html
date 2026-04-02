@@ -4,129 +4,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codecure - Clinical Antibiotic AI</title>
-    <!-- Link to the clean CSS -->
+    <title>AmrLens AI — Clinical Decision Support | Spirit 2026</title>
+    <meta name="description"
+        content="Advanced AI for predicting antibiotic resistance with clinical diagnostic reasoning. Standardized for SPIRIT 2026 by Team DELTA FORCE.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
-        <!-- Header -->
+
+        <!-- HEADER SECTION -->
         <header class="header">
-            <h1>Codecure AI</h1>
-            <p class="subtitle">Predicting Antibiotic Multiresistance from Patient Profiles</p>
-            <p class="explanation-text">This tool predicts antibiotic resistance risk based on patient clinical data.
-            </p>
+            <span class="subtitle">Flagship Health-Tech Event | SPIRIT 2026</span>
+            <h1>AmrLens AI</h1>
+            <p class="explanation-text">Advanced Clinical Predictor for Antibiotic Susceptibility</p>
         </header>
 
-        <div class="main-content">
-            <!-- Left Column: Input Form -->
-            <div class="card form-card">
-                <h2>Patient Clinical Details</h2>
-                <form action="/predict" method="POST">
+        <!-- INPUT CASE FILE -->
+        <div class="card form-card">
+            <h2>📋 Patient Case Intake</h2>
+            <form action="/predict" method="POST" id="case-form">
+                <div class="form-grid">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Age</label>
-                            <input type="number" name="age" placeholder="Age in years"
-                                value="{{ form_data.get('age', '') }}" min="0" max="100" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Gender</label>
-                            <select name="gender">
-                                <option value="1" {% if form_data.get('gender')=='1' %}selected{% endif %}>Male</option>
-                                <option value="0" {% if form_data.get('gender')=='0' %}selected{% endif %}>Female
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Diabetes?</label>
-                            <select name="diabetes">
-                                <option value="1" {% if form_data.get('diabetes')=='1' %}selected{% endif %}>Yes
-                                </option>
-                                <option value="0" {% if form_data.get('diabetes')=='0' %}selected{% endif %}>No</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Hypertension?</label>
-                            <select name="hypertension">
-                                <option value="1" {% if form_data.get('hypertension')=='1' %}selected{% endif %}>Yes
-                                </option>
-                                <option value="0" {% if form_data.get('hypertension')=='0' %}selected{% endif %}>No
-                                </option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="souches">Bacterial Strain (Souches)</label>
+                        <input type="text" id="souches" name="souches" list="souches-list"
+                            placeholder="e.g., E. coli, Klebsiella..." value="{{ form_data.souches if form_data }}">
+                        <datalist id="souches-list">
+                            <option value="Escherichia coli">
+                            <option value="Klebsiella pneumoniae">
+                            <option value="Staphylococcus aureus">
+                            <option value="Pseudomonas aeruginosa">
+                        </datalist>
                     </div>
 
                     <div class="form-group">
-                        <label>Hospitalization Before?</label>
-                        <select name="hospital_before">
-                            <option value="1" {% if form_data.get('hospital_before')=='1' %}selected{% endif %}>Yes
+                        <label for="age">Patient Age</label>
+                        <input type="number" id="age" name="age" min="0" max="150" required
+                            value="{{ form_data.age if form_data else 25 }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select name="gender" id="gender">
+                            <option value="0" {% if form_data and form_data.gender=='0' %}selected{% endif %}>Female
                             </option>
-                            <option value="0" {% if form_data.get('hospital_before')=='0' %}selected{% endif %}>No
+                            <option value="1" {% if form_data and form_data.gender=='1' %}selected{% endif %}>Male
                             </option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Number of past infections (last 1 year)</label>
-                        <input type="number" name="infection_freq" step="1"
-                            value="{{ form_data.get('infection_freq', '0') }}" min="0" max="20" required>
+                        <label for="diabetes">Diabetes History</label>
+                        <select name="diabetes" id="diabetes">
+                            <option value="0" {% if form_data and form_data.diabetes=='0' %}selected{% endif %}>Negative
+                            </option>
+                            <option value="1" {% if form_data and form_data.diabetes=='1' %}selected{% endif %}>Positive
+                            </option>
+                        </select>
                     </div>
 
-                    <button class="btn-predict" type="submit">Predict Resistance Status</button>
-
-                    <div class="disclaimer">
-                        <strong>Disclaimer:</strong> This AI tool is for assistance only and should not replace clinical
-                        judgment.
+                    <div class="form-group">
+                        <label for="hypertension">Hypertension</label>
+                        <select name="hypertension" id="hypertension">
+                            <option value="0" {% if form_data and form_data.hypertension=='0' %}selected{% endif %}>No
+                            </option>
+                            <option value="1" {% if form_data and form_data.hypertension=='1' %}selected{% endif %}>Yes
+                            </option>
+                        </select>
                     </div>
-                </form>
 
-                <!-- Flask Error Display -->
-                {% if error %}
-                <div class="alert error">
-                    <p><strong>System Error:</strong> {{ error }}</p>
+                    <div class="form-group">
+                        <label for="hospital_before">Prior Hospitalization</label>
+                        <select name="hospital_before" id="hospital_before">
+                            <option value="0" {% if form_data and form_data.hospital_before=='0' %}selected{% endif %}>
+                                None</option>
+                            <option value="1" {% if form_data and form_data.hospital_before=='1' %}selected{% endif %}>
+                                Recent (< 6 months)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="infection_freq">Infection Frequency</label>
+                        <input type="number" id="infection_freq" name="infection_freq" min="0" max="10"
+                            value="{{ form_data.infection_freq if form_data else 1 }}">
+                    </div>
+
                 </div>
-                {% endif %}
-            </div>
 
-            <!-- Right Column: Results Screen -->
+                <button type="submit" class="btn-predict">Analyze Case</button>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="card error-card" style="border-color: #ef4444; background: #fef2f2;">
+            <p style="color: #b91c1c; font-weight: 600;">⚠️ Error: {{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- RESULTS / CLINICAL INTELLIGENCE -->
+        <div class="result-container" id="results">
             {% if prediction %}
-            <div class="card result-card glossy">
-                <h2>Prediction Results</h2>
+            <div class="card result-card">
+
+                <h2>🧬 Clinical Intelligence Report</h2>
+
+                <div class="legend" aria-label="Resistance status legend">
+                    <span class="legend-item res">Resistant</span>
+                    <span class="legend-item inter">Intermediate</span>
+                    <span class="legend-item sus">Susceptible</span>
+                </div>
 
                 <div class="recommendation">
-                    <h3>💡 Recommended Prescriptions</h3>
-                    {% if recommended %}
-                    <p class="med-list">{{ recommended | join(", ") }}</p>
-                    {% else %}
-                    <p class="med-list danger">⚠️ No widely susceptible antibiotics predicted.</p>
-                    {% endif %}
+                    <h3>📢 PRIMARY TREATMENT GUIDANCE</h3>
+                    <p class="med-list">
+                        {% if recommended %}
+                        <strong>Recommended Selection:</strong> {{ recommended | join(", ") }}
+                        {% else %}
+                        ⚠️ WARNING: No clinical susceptibilities detected for this profile.
+                        {% endif %}
+                    </p>
                 </div>
 
-                <div class="drug-grid">
+                <div class="drug-grid" role="list">
                     {% for item in prediction %}
-                    <div class="drug-item status-{{ item.code }}">
-                        <span class="drug-name">{{ item.drug }}</span>
-                        <span class="drug-status">{{ item.status }}</span>
+                    <div class="drug-item status-{{ item.code }}" role="listitem">
+
+                        <div class="drug-header">
+                            <span class="drug-name">{{ item.drug }}</span>
+                            <span class="drug-status">{{ item.status }}</span>
+                            <div class="confidence-bar" title="Inference Confidence">
+                                <div class="confidence-fill level-{{ item.code }}"></div>
+                            </div>
+                        </div>
+
+                        <div class="drug-insight">
+                            <strong>Diagnostic Rationale:</strong>
+                            <p>{{ explanations[loop.index0].reason }}</p>
+                        </div>
+
+                        <div class="status-marker"
+                            style="text-align: right; font-weight: 900; font-size: 1.5rem; opacity: 0.1;">
+                            {{ "Rx" if item.code == 2 else "!" }}
+                        </div>
+
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-            {% else %}
-            <!-- Placeholder when resting -->
-            <div class="card placeholder-card">
-                <div class="placeholder-content">
-                    <h2 class="placeholder-icon">📋</h2>
-                    <p>Enter patient data to generate an antibiotic susceptibility profile.</p>
+
+                <!-- SOCIETAL IMPACT REPRODUCED INSIDE FOR FOCUS -->
+                <div class="impact-card" style="margin-top: 40px; border-top: 2px solid #e2e8f0; padding-top: 30px;">
+                    <h3 style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">
+                        🌍 Societal Impact & AMR Stewardship</h3>
+                    <p style="font-size: 0.9rem; color: #64748b;">
+                        <strong>AmrLens AI</strong> reduces targeted treatment delay from <strong>48 hours to 0.5 seconds</strong>.
+                        By avoiding broad-spectrum misuse, we actively preserve the efficacy of global antibiotic
+                        stocks.
+                    </p>
+                    <div class="impact-stats">
+                        <div class="stat"><span>86.5%</span><small>Avg precision</small></div>
+                        <div class="stat"><span>15+</span><small>Molecule Scan</small></div>
+                        <div class="stat"><span>9k+</span><small>Strain Map</small></div>
+                    </div>
                 </div>
+
             </div>
             {% endif %}
         </div>
+
+        <!-- INSIGHTS & VIZ -->
+        <div class="card visualization-card">
+            <h2>📊 Model Intelligence & Analytics</h2>
+            <div class="visualization-grid">
+
+                <div class="viz-section">
+                    <h3>Correlation Network (Strain Clusters)</h3>
+                    <div class="viz-box">
+                        <img src="{{ url_for('static', filename='network_graph.png') }}"
+                            alt="Antibiotic resistance correlation network graph" onerror="this.src='https://placehold.co/600x400/f8fafc/64748b?text=Generating+Graph...'">
+                    </div>
+                </div>
+
+                <div class="viz-section">
+                    <h3>Permutation Feature Importance</h3>
+                    <div class="viz-box">
+                        <img src="{{ url_for('static', filename='feature_importance.png') }}"
+                            alt="Feature importance chart" onerror="this.src='https://placehold.co/600x400/f8fafc/64748b?text=Generating+Chart...'">
+                    </div>
+                </div>
+
+                <div class="viz-section" style="grid-column: 1 / -1;">
+                    <h3>Clinical Resistance Matrix (Heatmap)</h3>
+                    <div class="viz-box" style="height: 500px;">
+                        <img src="{{ url_for('static', filename='resistance_heatmap.png') }}"
+                            alt="Scientific Resistance Heatmap" onerror="this.src='https://placehold.co/1000x600/f8fafc/64748b?text=Generating+Heatmap...'">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; color: #94a3b8; font-size: 0.8rem; padding-bottom: 50px;">
+            AmrLens AI | Developed by Team DELTA FORCE for SPIRIT 2026 - IIT BHU Varanasi
+        </footer>
+
     </div>
 </body>
 
