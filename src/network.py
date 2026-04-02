@@ -1,54 +1,62 @@
-import pandas as pd
-import networkx as nx
-import matplotlib.pyplot as plt
+"""
+network.py — Generate an antibiotic co-resistance correlation network graph.
+
+Computes pairwise Pearson correlations between antibiotic resistance columns
+and draws edges between pairs whose |correlation| exceeds a threshold.
+Saves the graph to static/network_graph.png.
+"""
+
 import os
 
-# Load dataset
-df = pd.read_csv("data/Cleaned_Bacteria_Dataset.csv")
+import matplotlib.pyplot as plt
+import networkx as nx
+import pandas as pd
 
-# Antibiotic columns (targets)
-target_cols = [
-    'AMX/AMP', 'AMC', 'CZ', 'FOX', 'CTX/CRO', 'IPM',
-    'GEN', 'AN', 'Acide nalidixique', 'ofx', 'CIP',
-    'C', 'Co-trimoxazole', 'Furanes', 'colistine'
+DATA_PATH = "data/Cleaned_Bacteria_Dataset.csv"
+OUTPUT_PATH = "static/network_graph.png"
+CORRELATION_THRESHOLD = 0.2
+
+TARGET_COLS = [
+    "AMX/AMP", "AMC", "CZ", "FOX", "CTX/CRO", "IPM",
+    "GEN", "AN", "Acide nalidixique", "ofx", "CIP",
+    "C", "Co-trimoxazole", "Furanes", "colistine",
 ]
 
-# Compute correlation
-corr = df[target_cols].corr()
 
-# Create graph
-G = nx.Graph()
+def build_network_graph() -> None:
+    """Build and save the antibiotic co-resistance network graph."""
+    df = pd.read_csv(DATA_PATH)
+    corr = df[TARGET_COLS].corr()
 
-# Threshold for strong relationship
-threshold = 0.2
+    G = nx.Graph()
 
-# Add edges
-for i in range(len(target_cols)):
-    for j in range(i + 1, len(target_cols)):
-        if abs(corr.iloc[i, j]) > threshold:
-            G.add_edge(target_cols[i], target_cols[j], weight=corr.iloc[i, j])
+    for i in range(len(TARGET_COLS)):
+        for j in range(i + 1, len(TARGET_COLS)):
+            weight = corr.iloc[i, j]
+            if abs(weight) > CORRELATION_THRESHOLD:
+                G.add_edge(TARGET_COLS[i], TARGET_COLS[j], weight=weight)
 
-# Create static folder if not exists
-os.makedirs("static", exist_ok=True)
+    os.makedirs("static", exist_ok=True)
 
-# Draw graph
-plt.figure(figsize=(12, 10))
-pos = nx.spring_layout(G, seed=42)
+    plt.figure(figsize=(12, 10))
+    pos = nx.spring_layout(G, seed=42)
+    nx.draw(
+        G,
+        pos,
+        with_labels=True,
+        node_size=2000,
+        node_color="#38bdf8",
+        font_size=8,
+        font_weight="bold",
+        edge_color="#94a3b8",
+    )
+    plt.title("Antibiotic Resistance Co-resistance Network", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(OUTPUT_PATH, bbox_inches="tight", dpi=150)
+    plt.close()
 
-nx.draw(
-    G,
-    pos,
-    with_labels=True,
-    node_size=2000,
-    node_color="lightblue",
-    font_size=8,
-    font_weight="bold"
-)
+    print(f"✅ Network graph saved → {OUTPUT_PATH}")
 
-# Save image
-output_path = "static/network_graph.png"
-plt.title("Antibiotic Resistance Network")
-plt.savefig(output_path, bbox_inches='tight')
-plt.close()
 
-print(f"\n✅ Network graph saved at: {output_path}")
+if __name__ == "__main__":
+    build_network_graph()
